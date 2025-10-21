@@ -26,14 +26,14 @@ frame_count = 0
 running = True
 
 # Load images
-balloon_image = pygame.image.load("balloon.png").convert_alpha()
+balloon_image = pygame.image.load("balloon_image.png").convert_alpha()
 balloon_image = pygame.transform.scale(balloon_image, (150, 150))
-background = pygame.image.load("balloonbg.jpg").convert()
+background = pygame.image.load("balloon_background_image.jpg").convert()
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 
 # Load sounds
 pop_sound = pygame.mixer.Sound("balloon-pop.mp3")
-background_music = pygame.mixer.Sound("background_music.mp3")
+background_music = pygame.mixer.Sound("background_music_balloon_game.mp3")
 
 # Play background music on loop
 background_music.set_volume(0.3)
