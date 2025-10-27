@@ -1,41 +1,9 @@
-# ------------------- Difficulty -------------------
-import random
-
-difficulty = input("Select difficulty (E=Easy, M=Medium, H=Hard, R=Random): ").strip().upper()
-
-if difficulty == "R":
-    difficulty = random.choice(["E", "M", "H"])
-    print(f"Your difficulty is - '{difficulty}'")
-
-if difficulty == "E":
-    balloon_spawn_rate = 45
-    star_spawn_rate = 50
-    winning_score = 3000
-    max_frames = 3600
-elif difficulty == "M":
-    balloon_spawn_rate = 50
-    star_spawn_rate = 40
-    winning_score = 4000
-    max_frames = 3600
-elif difficulty == "H":
-    balloon_spawn_rate = 55
-    star_spawn_rate = 25
-    winning_score = 5000
-    max_frames = 3600
-else:
-    print(f"Invalid input '{difficulty}', defaulting to Medium")
-    # Use actual Medium values for default
-    balloon_spawn_rate = 50
-    star_spawn_rate = 40
-    winning_score = 4000
-    max_frames = 3600
-
-
 # ---- Libraries ----
 import pygame
 import pymunk
 import pymunk.pygame_util
 import sys
+import random
 
 # --- Initialize Pygame ---
 pygame.init()
@@ -56,18 +24,19 @@ font = pygame.font.Font(None, 48)
 frame_count = 0
 running = True
 balloons = []
-stars = []
 score = 0
 gameover = False
 gamewin = False
-gameover_sound_played = False  # New flag to play sound only once
+gameover_sound_played = False  # Play game over/win sound only once
+
+# --- Fixed Game Settings ---
+balloon_spawn_rate = 50
+winning_score = 4000
+max_frames = 3600
 
 # --- Load Assets ---
 balloon_image = pygame.image.load("balloon_image.png").convert_alpha()
 balloon_image = pygame.transform.scale(balloon_image, (150, 150))
-
-star_image = pygame.image.load("star_image.png").convert_alpha()
-star_image = pygame.transform.scale(star_image, (60, 60))
 
 background = pygame.image.load("balloon_background_image.jpg").convert()
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
@@ -77,7 +46,6 @@ pop_sound.set_volume(0.3)
 
 gameover_sound = pygame.mixer.Sound("gameover_balloon_game.mp3")
 gamewin_sound = pygame.mixer.Sound("gamewin_balloon_game.mp3")
-lose_points_sound = pygame.mixer.Sound("lose_points_sound.mp3")
 
 background_music = pygame.mixer.Sound("background_music_balloon_game.mp3")
 background_music.set_volume(0.3)
@@ -88,18 +56,6 @@ draw_options = pymunk.pygame_util.DrawOptions(screen)
 
 # --- Functions ---
 def create_balloon():
-    x = random.randint(75, 725)
-    y = 500
-    body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 25))
-    body.position = x, y
-    shape = pymunk.Circle(body, 25)
-    shape.elasticity = 0
-    shape.friction = 0.5
-    space.add(body, shape)
-    return body, shape
-
-
-def create_star():
     x = random.randint(75, 725)
     y = 500
     body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 25))
@@ -123,11 +79,9 @@ while running:
     screen.blit(background, (0, 0))
     frame_count += 1
 
-    # Randomly create balloons and stars based on difficulty
+    # Randomly create balloons
     if not gameover and random.randint(1, balloon_spawn_rate) == 1:
         balloons.append(create_balloon())
-    if not gameover and random.randint(1, star_spawn_rate) == 1:
-        stars.append(create_star())
 
     # Event handling
     for event in pygame.event.get():
@@ -148,40 +102,18 @@ while running:
                     popped_balloons.append((body, shape))
                     score += 100
 
-            # STARS
-            clicked_stars = []
-            for body, shape in stars:
-                x, y = body.position
-                star_rect = pygame.Rect(x - 30, y - 30, 60, 60)
-                if star_rect.colliderect(mouse_rect):
-                    lose_points_sound.play()
-                    clicked_stars.append((body, shape))
-                    score -= 100
-
             # Remove popped balloons
             for balloon in popped_balloons:
                 balloons.remove(balloon)
                 space.remove(balloon[0], balloon[1])
 
-            # Remove clicked stars
-            for star in clicked_stars:
-                stars.remove(star)
-                space.remove(star[0], star[1])
-
-    # Draw balloons and stars
+    # Draw balloons
     if not gameover:
         for body, shape in balloons[:]:
             x, y = body.position
             screen.blit(balloon_image, (x - 75, y - 75))
             if y < -100:
                 balloons.remove((body, shape))
-                space.remove(body, shape)
-
-        for body, shape in stars[:]:
-            x, y = body.position
-            screen.blit(star_image, (x - 30, y - 30))
-            if y < -100:
-                stars.remove((body, shape))
                 space.remove(body, shape)
 
     # Display score
