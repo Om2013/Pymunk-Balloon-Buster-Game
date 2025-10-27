@@ -9,12 +9,12 @@ if difficulty == "R":
 
 if difficulty == "E":
     balloon_spawn_rate = 45
-    star_spawn_rate = 50
+    star_spawn_rate = 45
     winning_score = 3000
     max_frames = 3600
 elif difficulty == "M":
     balloon_spawn_rate = 50
-    star_spawn_rate = 40
+    star_spawn_rate = 35
     winning_score = 4000
     max_frames = 3600
 elif difficulty == "H":
@@ -199,8 +199,7 @@ while running:
         elif frame_count >= max_frames:
             gamewin = False
             gameover = True
-
-    # Handle Game Over / Win
+            # Handle Game Over / Win
     if gameover:
         if not gameover_sound_played:
             background_music.stop()
@@ -210,22 +209,19 @@ while running:
             else:
                 gameover_sound.play()
                 text_surface = font.render("YOU LOST!", True, (255, 0, 0))
+            
             gameover_sound_played = True
 
-        # Display message
-        screen.blit(background, (0, 0))
-        text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
-        screen.blit(text_surface, text_rect)
-        pygame.display.flip()
+            # Display message
+            screen.blit(background, (0, 0))
+            text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+            screen.blit(text_surface, text_rect)
+            pygame.display.flip()
+            pygame.time.delay(3000)
 
-        # Wait until user closes window
-        waiting = True
-        while waiting:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    waiting = False
-                    running = False
-        break
+            # Exit game cleanly after showing message
+            running = False
+            break
 
     # Physics step
     space.step(1 / FPS)
